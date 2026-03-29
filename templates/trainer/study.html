@@ -15,13 +15,13 @@
       <div class="flip-face flip-front">
         <p class="flip-hint">английское слово</p>
         <div class="flip-word" id="study-word">—</div>
+        <div id="study-drawing" style="max-width:160px;max-height:90px;overflow:hidden;margin-top:.5rem"></div>
         <p class="flip-hint">нажми, чтобы увидеть перевод</p>
       </div>
       <div class="flip-face flip-back">
         <p class="flip-hint">перевод</p>
         <div class="flip-translation" id="study-translation">—</div>
         <p class="flip-example" id="study-example"></p>
-        <div id="study-drawing" style="max-width:180px;max-height:100px;overflow:hidden;margin-top:.5rem"></div>
       </div>
     </div>
   </div>
@@ -34,7 +34,7 @@
 
   <div id="study-done" style="display:none;text-align:center">
     <div style="font-size:3rem;margin-bottom:1rem">🌸</div>
-    <h3 style="font-family:'Playfair Display',serif;font-size:1.6rem;margin-bottom:.5rem">Сессия завершена!</h3>
+    <h3 style="font-family:'Syne',sans-serif;font-size:1.6rem;margin-bottom:.5rem">Сессия завершена!</h3>
     <p class="text-muted" id="done-stats" style="font-weight:700"></p>
     <div class="flex gap-1 justify-center mt-3" style="flex-wrap:wrap">
       <button onclick="startStudy()" class="btn btn-primary">Ещё раз</button>
@@ -77,11 +77,8 @@ function loadCard() {
   document.getElementById('flip-card').classList.remove('flipped');
   document.getElementById('study-word').textContent = current.word;
   document.getElementById('study-translation').textContent = current.translation;
- document.getElementById('study-example').textContent = current.example || '';
-  const drawingBox = document.getElementById('study-drawing');
-  if (drawingBox) drawingBox.innerHTML = current.drawing_svg || '';
-  const drawingBox = document.getElementById('study-drawing');
-  drawingBox.innerHTML = current.drawing_svg || '';
+  document.getElementById('study-example').textContent = current.example || '';
+  document.getElementById('study-drawing').innerHTML = current.drawing_svg || '';
   document.getElementById('answer-btns').style.display = 'none';
   document.getElementById('btn-show').style.display = '';
   const total = ALL_CARDS.length;
