@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Мои карточки — LexiKo{% endblock %}
+{% block content %}
+<div class="page-header flex justify-between align-center">
+  <div>
+    <h1 class="page-title">Мои карточки</h1>
+    <p class="page-subtitle">{{ cards|length }} карточек в коллекции</p>
+  </div>
+  <div class="flex gap-1">
+    <a href="{% url 'import_cards' %}" class="btn btn-green">📋 Импорт</a>
+    <a href="{% url 'card_add' %}" class="btn btn-primary">+ Добавить</a>
+  </div>
+</div>
+
+<form method="get" class="filter-bar">
+  <select name="level" class="form-input" style="width:auto" onchange="this.form.submit()">
+    <option value="">Все уровни</option>
+    <option value="A1" {% if level_filter == 'A1' %}selected{% endif %}>A1</option>
+    <option value="A2" {% if level_filter == 'A2' %}selected{% endif %}>A2</option>
+    <option value="B1" {% if level_filter == 'B1' %}selected{% endif %}>B1</option>
+    <option value="B2" {% if level_filter == 'B2' %}selected{% endif %}>B2</option>
+    <option value="C1" {% if level_filter == 'C1' %}selected{% endif %}>C1</option>
+    <option value="C2" {% if level_filter == 'C2' %}selected{% endif %}>C2</option>
+  </select>
+  <select name="category" class="form-input" style="width:auto" onchange="this.form.submit()">
+    <option value="">Все категории</option>
+    <option value="adjectives" {% if category_filter == 'adjectives' %}selected{% endif %}>Прилагательные</option>
+    <option value="nouns"      {% if category_filter == 'nouns'      %}selected{% endif %}>Существительные</option>
+    <option value="verbs"      {% if category_filter == 'verbs'      %}selected{% endif %}>Глаголы</option>
+    <option value="phrases"    {% if category_filter == 'phrases'    %}selected{% endif %}>Фразы</option>
+    <option value="other"      {% if category_filter == 'other'      %}selected{% endif %}>Другое</option>
+  </select>
+  {% if level_filter or category_filter %}
+    <a href="{% url 'card_list' %}" class="btn btn-ghost btn-sm">Сбросить</a>
+  {% endif %}
+</form>
+
+{% if cards %}
+<div class="cards-grid">
+  {% for card in cards %}
+  <div class="word-card">
+    <a href="{% url 'card_detail' card.id %}" style="text-decoration:none;color:inherit">
+      <div class="word-card-word">{{ card.word }}</div>
+      <div class="word-card-translation">{{ card.translation }}</div>
+      <div class="flex gap-1 mt-1" style="flex-wrap:wrap">
+        <span class="badge badge-pink">{{ card.level }}</span>
+        <span class="badge badge-gray">{{ card.category }}</span>
+        {% if card.accuracy is not None %}<span class="badge badge-green">{{ card.accuracy }}%</span>{% endif %}
+        {% if card.drawing_svg %}<span class="badge badge-green">🎨</span>{% endif %}
+      </div>
+      {% if card.example %}
+        <div class="text-sm text-muted mt-1" style="font-style:italic">{{ card.example|truncatechars:55 }}</div>
+      {% endif %}
+    </a>
+    <div class="flex gap-1 mt-2">
+      <a href="{% url 'card_edit' card.id %}" class="btn btn-ghost btn-sm">✏️ Изменить</a>
+      <form method="post" action="{% url 'card_delete' card.id %}" style="display:inline"
+            onsubmit="return confirm('Удалить «{{ card.word }}»?')">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger btn-sm">🗑</button>
+      </form>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+  <div class="empty-icon">🌸</div>
+  <h3>Карточек пока нет</h3>
+  <p>Добавьте первое слово или импортируйте список</p>
+  <div class="flex gap-1 justify-center mt-2">
+    <a href="{% url 'card_add' %}" class="btn btn-primary">+ Добавить</a>
+    <a href="{% url 'import_cards' %}" class="btn btn-green">📋 Импорт</a>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

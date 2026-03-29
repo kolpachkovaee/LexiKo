@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}{{ action }} карточку — LexiKo{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title">{{ action }} карточку</h1>
+  <p class="page-subtitle">Заполните поля — слово, перевод и уровень обязательны</p>
+</div>
+
+<div class="form-card">
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {% for field in form %}
+    <div class="form-group">
+      <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+      {{ field }}
+      {% for error in field.errors %}
+        <div class="form-error">⚠ {{ error }}</div>
+      {% endfor %}
+    </div>
+    {% endfor %}
+    <div class="flex gap-1 mt-3">
+      <button type="submit" class="btn btn-primary">{{ action }}</button>
+      <a href="{% url 'card_list' %}" class="btn btn-ghost">Отмена</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

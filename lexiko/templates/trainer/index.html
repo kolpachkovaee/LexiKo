@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}LexiKo — тренажёр английских слов{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <h1 class="hero-title">
+    Учи слова,<br/>
+    <span class="hl">рисуй</span> <span class="hl2">ассоциации</span>
+  </h1>
+  <p class="hero-subtitle">
+    Добавляй карточки, рисуй образы вручную и запоминай английские слова легко и весело.
+  </p>
+  {% if user.is_authenticated %}
+    <div class="hero-actions">
+      <a href="{% url 'card_add' %}" class="btn btn-primary btn-lg">+ Новая карточка</a>
+      <a href="{% url 'import_cards' %}" class="btn btn-green btn-lg">📋 Импорт</a>
+      <a href="{% url 'study' %}" class="btn btn-ghost btn-lg">Учить →</a>
+    </div>
+
+    {% if stats %}
+    <div class="stats-grid" style="margin-top:2.5rem">
+      <div class="stat-card">
+        <div class="stat-number">{{ stats.total_cards }}</div>
+        <div class="stat-label">Карточек</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" style="color:var(--green-dark)">{{ stats.learned }}</div>
+        <div class="stat-label">Выучено</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">{{ stats.accuracy }}%</div>
+        <div class="stat-label">Точность</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">{{ stats.total_answers }}</div>
+        <div class="stat-label">Ответов</div>
+      </div>
+    </div>
+    {% endif %}
+
+    {% if recent_cards %}
+    <div style="margin-top:2.5rem;text-align:left">
+      <div class="flex justify-between align-center mb-2">
+        <h2 style="font-family:'Playfair Display',serif;font-size:1.4rem">Последние карточки</h2>
+        <a href="{% url 'card_list' %}" class="btn btn-ghost btn-sm">Все →</a>
+      </div>
+      <div class="cards-grid">
+        {% for card in recent_cards %}
+        <a href="{% url 'card_detail' card.id %}" style="text-decoration:none">
+          <div class="word-card">
+            <div class="word-card-word">{{ card.word }}</div>
+            <div class="word-card-translation">{{ card.translation }}</div>
+            <div class="flex gap-1 mt-1">
+              <span class="badge badge-pink">{{ card.level }}</span>
+              <span class="badge badge-gray">{{ card.category }}</span>
+              {% if card.drawing_svg %}<span class="badge badge-green">🎨</span>{% endif %}
+            </div>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+  {% else %}
+    <div class="hero-actions">
+      <a href="{% url 'register' %}" class="btn btn-primary btn-lg">Начать бесплатно</a>
+      <a href="{% url 'login' %}" class="btn btn-ghost btn-lg">Уже есть аккаунт</a>
+    </div>
+  {% endif %}
+</section>
+
+<div class="features-grid">
+  <div class="feature-card">
+    <div class="feature-icon">🎨</div>
+    <div class="feature-title">Рисуй ассоциации</div>
+    <div class="feature-desc">Нарисуй образ прямо в браузере — визуальная память работает лучше текста.</div>
+  </div>
+  <div class="feature-card">
+    <div class="feature-icon">📋</div>
+    <div class="feature-title">Импорт как в Quizlet</div>
+    <div class="feature-desc">Вставь список слов или загрузи CSV — все карточки создадутся автоматически.</div>
+  </div>
+  <div class="feature-card">
+    <div class="feature-icon">🃏</div>
+    <div class="feature-title">Карточки и квиз</div>
+    <div class="feature-desc">Листай карточки или проверяй себя в режиме квиза с 4 вариантами ответа.</div>
+  </div>
+  <div class="feature-card">
+    <div class="feature-icon">📊</div>
+    <div class="feature-title">Прогресс</div>
+    <div class="feature-desc">Следи за точностью по каждому слову и видь что ещё нужно повторить.</div>
+  </div>
+</div>
+{% endblock %}
