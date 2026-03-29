@@ -77,7 +77,9 @@ function loadCard() {
   document.getElementById('flip-card').classList.remove('flipped');
   document.getElementById('study-word').textContent = current.word;
   document.getElementById('study-translation').textContent = current.translation;
-  document.getElementById('study-example').textContent = current.example || '';
+ document.getElementById('study-example').textContent = current.example || '';
+  const drawingBox = document.getElementById('study-drawing');
+  if (drawingBox) drawingBox.innerHTML = current.drawing_svg || '';
   const drawingBox = document.getElementById('study-drawing');
   drawingBox.innerHTML = current.drawing_svg || '';
   document.getElementById('answer-btns').style.display = 'none';
