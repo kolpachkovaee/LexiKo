@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% block title %}Импорт карточек — LexiKo{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title">Импорт карточек</h1>
+  <p class="page-subtitle">Вставь список слов как в Quizlet или загрузи CSV-файл</p>
+</div>
+
+<div class="form-card" style="max-width:680px">
+  <div class="tab-bar">
+    <button class="tab-btn active" data-tab="tab-text">📝 Вставить текст</button>
+    <button class="tab-btn" data-tab="tab-csv">📁 Загрузить CSV</button>
+  </div>
+
+  <!-- Text import -->
+  <div id="tab-text" class="tab-panel active">
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <input type="hidden" name="import_type" id="import-type-input" value="text"/>
+
+      <div class="form-group">
+        <label class="form-label">Слова (слово Tab перевод, каждая пара на новой строке)</label>
+        <textarea name="text" class="form-input" rows="10"
+          placeholder="resilient&#9;стойкий&#10;eloquent&#9;красноречивый&#10;candor&#9;искренность">{% if text_form.text.value %}{{ text_form.text.value }}{% endif %}</textarea>
+        {% if text_form.text.errors %}
+          {% for error in text_form.text.errors %}
+            <div class="form-error">⚠ {{ error }}</div>
+          {% endfor %}
+        {% endif %}
+        <p class="text-muted text-sm mt-1">
+          Разделитель между словом и переводом — <strong>Tab</strong> (как в Quizlet).
+          Каждая пара — на новой строке.
+        </p>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+        <div class="form-group">
+          <label class="form-label">Уровень</label>
+          <select name="level" class="form-input">
+            <option value="">— выберите —</option>
+            <option value="A1">A1</option>
+            <option value="A2">A2</option>
+            <option value="B1" selected>B1</option>
+            <option value="B2">B2</option>
+            <option value="C1">C1</option>
+            <option value="C2">C2</option>
+          </select>
+          {% if text_form.level.errors %}
+            {% for error in text_form.level.errors %}
+              <div class="form-error">⚠ {{ error }}</div>
+            {% endfor %}
+          {% endif %}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Категория</label>
+          <select name="category" class="form-input">
+            <option value="">— выберите —</option>
+            <option value="adjectives">Прилагательные</option>
+            <option value="nouns">Существительные</option>
+            <option value="verbs">Глаголы</option>
+            <option value="phrases">Фразы</option>
+            <option value="other">Другое</option>
+          </select>
+          {% if text_form.category.errors %}
+            {% for error in text_form.category.errors %}
+              <div class="form-error">⚠ {{ error }}</div>
+            {% endfor %}
+          {% endif %}
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary">📋 Импортировать</button>
+    </form>
+  </div>
+
+  <!-- CSV import -->
+  <div id="tab-csv" class="tab-panel">
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <input type="hidden" name="import_type" value="csv"/>
+
+      <div class="form-group">
+        <label class="form-label">CSV-файл</label>
+        <input type="file" name="csv_file" class="form-input" accept=".csv"/>
+        {% if csv_form.csv_file.errors %}
+          {% for error in csv_form.csv_file.errors %}
+            <div class="form-error">⚠ {{ error }}</div>
+          {% endfor %}
+        {% endif %}
+        <p class="text-muted text-sm mt-1">
+          Формат файла: <strong>слово,перевод</strong> — по одной паре на строку.<br/>
+          Пример: <code>resilient,стойкий</code>
+        </p>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+        <div class="form-group">
+          <label class="form-label">Уровень</label>
+          <select name="level" class="form-input">
+            <option value="">— выберите —</option>
+            <option value="A1">A1</option>
+            <option value="A2">A2</option>
+            <option value="B1" selected>B1</option>
+            <option value="B2">B2</option>
+            <option value="C1">C1</option>
+            <option value="C2">C2</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Категория</label>
+          <select name="category" class="form-input">
+            <option value="">— выберите —</option>
+            <option value="adjectives">Прилагательные</option>
+            <option value="nouns">Существительные</option>
+            <option value="verbs">Глаголы</option>
+            <option value="phrases">Фразы</option>
+            <option value="other">Другое</option>
+          </select>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-green">📁 Загрузить CSV</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block title %}Учить — LexiKo{% endblock %}
+{% block content %}
+
+<div class="page-header" style="text-align:center">
+  <h1 class="page-title">Режим карточек</h1>
+  <p class="page-subtitle">Нажми на карточку, чтобы увидеть перевод</p>
+</div>
+
+<div class="study-container">
+  <p id="progress-info" class="text-muted text-sm" style="font-weight:700"></p>
+
+  <div class="flip-card-wrap" id="flip-card">
+    <div class="flip-card-inner">
+      <div class="flip-face flip-front">
+        <p class="flip-hint">английское слово</p>
+        <div class="flip-word" id="study-word">—</div>
+        <p class="flip-hint">нажми, чтобы увидеть перевод</p>
+      </div>
+      <div class="flip-face flip-back">
+        <p class="flip-hint">перевод</p>
+        <div class="flip-translation" id="study-translation">—</div>
+        <p class="flip-example" id="study-example"></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="study-controls" id="answer-btns" style="display:none">
+    <button id="btn-wrong" class="btn btn-danger btn-lg">✗ Не знаю</button>
+    <button id="btn-correct" class="btn btn-green btn-lg">✓ Знаю</button>
+  </div>
+  <button id="btn-show" class="btn btn-ghost btn-lg">Показать перевод</button>
+
+  <div id="study-done" style="display:none;text-align:center">
+    <div style="font-size:3rem;margin-bottom:1rem">🌸</div>
+    <h3 style="font-family:'Playfair Display',serif;font-size:1.6rem;margin-bottom:.5rem">Сессия завершена!</h3>
+    <p class="text-muted" id="done-stats" style="font-weight:700"></p>
+    <div class="flex gap-1 justify-center mt-3" style="flex-wrap:wrap">
+      <button onclick="startStudy()" class="btn btn-primary">Ещё раз</button>
+      <a href="{% url 'quiz' %}" class="btn btn-green">Попробовать квиз</a>
+      <a href="{% url 'stats' %}" class="btn btn-ghost">Статистика</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const ALL_CARDS = {{ cards_json|safe }};
+const CSRF = document.cookie.match(/csrftoken=([^;]+)/)?.[1] || '';
+let deck = [], current = null, sessionCorrect = 0, sessionWrong = 0, flipped = false;
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startStudy() {
+  deck = shuffle(ALL_CARDS);
+  sessionCorrect = 0; sessionWrong = 0;
+  document.getElementById('study-done').style.display = 'none';
+  document.getElementById('flip-card').style.display = '';
+  document.getElementById('btn-show').style.display = '';
+  document.getElementById('answer-btns').style.display = 'none';
+  loadCard();
+}
+
+function loadCard() {
+  if (!deck.length) { showDone(); return; }
+  current = deck.pop();
+  flipped = false;
+  document.getElementById('flip-card').classList.remove('flipped');
+  document.getElementById('study-word').textContent = current.word;
+  document.getElementById('study-translation').textContent = current.translation;
+  document.getElementById('study-example').textContent = current.example || '';
+  document.getElementById('answer-btns').style.display = 'none';
+  document.getElementById('btn-show').style.display = '';
+  const total = ALL_CARDS.length;
+  const done = total - deck.length;
+  document.getElementById('progress-info').textContent =
+    `${done} / ${total} • ✓ ${sessionCorrect}  ✗ ${sessionWrong}`;
+}
+
+function showAnswer() {
+  if (flipped) return;
+  flipped = true;
+  document.getElementById('flip-card').classList.add('flipped');
+  document.getElementById('btn-show').style.display = 'none';
+  document.getElementById('answer-btns').style.display = 'flex';
+}
+
+function recordAnswer(correct) {
+  if (!current) return;
+  fetch('/api/answer/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF },
+    body: JSON.stringify({ card_id: current.id, correct }),
+  });
+  if (correct) sessionCorrect++; else sessionWrong++;
+  loadCard();
+}
+
+function showDone() {
+  document.getElementById('flip-card').style.display = 'none';
+  document.getElementById('btn-show').style.display = 'none';
+  document.getElementById('answer-btns').style.display = 'none';
+  document.getElementById('study-done').style.display = 'block';
+  document.getElementById('done-stats').textContent =
+    `Правильно: ${sessionCorrect}, ошибок: ${sessionWrong}`;
+}
+
+document.getElementById('flip-card').addEventListener('click', showAnswer);
+document.getElementById('btn-show').addEventListener('click', showAnswer);
+document.getElementById('btn-correct').addEventListener('click', () => recordAnswer(true));
+document.getElementById('btn-wrong').addEventListener('click', () => recordAnswer(false));
+
+startStudy();
+</script>
+{% endblock %}

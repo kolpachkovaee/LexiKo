@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}Прогресс — LexiKo{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1 class="page-title">Мой прогресс</h1>
+  <p class="page-subtitle">Отслеживай результаты по каждому слову</p>
+</div>
+
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-number">{{ stats.total_cards }}</div>
+    <div class="stat-label">Всего карточек</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number" style="color:var(--green-dark)">{{ stats.learned }}</div>
+    <div class="stat-label">Выучено</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number">{{ stats.total_answers }}</div>
+    <div class="stat-label">Ответов дано</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number">{{ stats.accuracy }}%</div>
+    <div class="stat-label">Точность</div>
+  </div>
+</div>
+
+{% if stats.total_answers %}
+<div class="card" style="margin-bottom:2rem">
+  <div class="flex justify-between align-center" style="margin-bottom:.5rem">
+    <span style="font-weight:800">Общая точность</span>
+    <span class="text-muted text-sm">{{ stats.total_correct }} / {{ stats.total_answers }}</span>
+  </div>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-fill" style="width:{{ stats.accuracy }}%"></div>
+  </div>
+</div>
+{% endif %}
+
+{% if card_details %}
+<div class="card">
+  <h2 style="font-family:'Playfair Display',serif;font-weight:700;margin-bottom:1rem;font-size:1.3rem">
+    По словам
+  </h2>
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Слово</th>
+        <th>Перевод</th>
+        <th>✓ Правильно</th>
+        <th>✗ Ошибки</th>
+        <th>Точность</th>
+        <th>Прогресс</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in card_details %}
+      <tr>
+        <td style="font-weight:800;color:var(--pink-dark)">{{ item.word }}</td>
+        <td class="text-muted">{{ item.translation }}</td>
+        <td style="color:var(--green-dark);font-weight:700">{{ item.correct }}</td>
+        <td style="color:#d95858;font-weight:700">{{ item.wrong }}</td>
+        <td style="font-weight:800">{% if item.attempts %}{{ item.accuracy }}%{% else %}—{% endif %}</td>
+        <td style="width:120px">
+          {% if item.attempts %}
+          <div class="progress-bar-wrap">
+            <div class="progress-bar-fill" style="width:{{ item.accuracy }}%"></div>
+          </div>
+          {% else %}
+          <span class="text-muted text-sm">не изучалось</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="empty-state">
+  <div class="empty-icon">📊</div>
+  <h3>Статистики пока нет</h3>
+  <p>Начни учить карточки или пройди квиз</p>
+  <div class="flex gap-1 justify-center mt-2">
+    <a href="{% url 'study' %}" class="btn btn-primary">Учить</a>
+    <a href="{% url 'quiz' %}" class="btn btn-green">Квиз</a>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
