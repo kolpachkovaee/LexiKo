@@ -78,6 +78,8 @@ function loadCard() {
   document.getElementById('study-word').textContent = current.word;
   document.getElementById('study-translation').textContent = current.translation;
   document.getElementById('study-example').textContent = current.example || '';
+  const drawingBox = document.getElementById('study-drawing');
+  drawingBox.innerHTML = current.drawing_svg || '';
   document.getElementById('answer-btns').style.display = 'none';
   document.getElementById('btn-show').style.display = '';
   const total = ALL_CARDS.length;
